@@ -17,8 +17,8 @@ export function BookPageClient({ bookId }: BookPageClientProps) {
 
   return (
     <div className="space-y-8">
-      <section className="bg-gray-100 rounded-xl p-8">
-        <h2 className="text-lg font-semibold text-gray-900 text-center mb-6">
+      <section className="bg-gray-100 dark:bg-gray-800 rounded-xl p-8">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white text-center mb-6">
           Record a Note
         </h2>
         <AudioRecorder
@@ -28,7 +28,7 @@ export function BookPageClient({ bookId }: BookPageClientProps) {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Notes</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your Notes</h2>
         <AnnotationList bookId={bookId} refreshTrigger={refreshTrigger} />
       </section>
     </div>

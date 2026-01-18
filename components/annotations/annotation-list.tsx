@@ -47,14 +47,14 @@ export function AnnotationList({ bookId, refreshTrigger }: AnnotationListProps) 
   if (loading) {
     return (
       <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900" />
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-gray-100" />
       </div>
     );
   }
 
   if (annotations.length === 0) {
     return (
-      <p className="text-center text-gray-500 py-8">
+      <p className="text-center text-gray-500 dark:text-gray-400 py-8">
         No notes yet. Record your first one!
       </p>
     );

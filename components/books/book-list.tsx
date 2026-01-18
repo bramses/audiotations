@@ -70,7 +70,7 @@ export function BookList() {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100" />
       </div>
     );
   }
@@ -80,7 +80,7 @@ export function BookList() {
       {/* Currently Reading Section */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             Currently Reading
           </h2>
           <button
@@ -91,7 +91,7 @@ export function BookList() {
           </button>
         </div>
         {currentlyReading.length === 0 ? (
-          <p className="text-gray-500 py-8 text-center">
+          <p className="text-gray-500 dark:text-gray-400 py-8 text-center">
             No books yet. Add one to get started!
           </p>
         ) : (
@@ -112,7 +112,7 @@ export function BookList() {
         <section>
           <button
             onClick={() => setShowArchived(!showArchived)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
           >
             <span
               className={`transform transition-transform ${showArchived ? "rotate-90" : ""}`}

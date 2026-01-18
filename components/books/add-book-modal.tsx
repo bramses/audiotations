@@ -37,19 +37,19 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
         aria-hidden
       />
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Add Book</h2>
+      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-md p-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Add Book</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
               htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Title
             </label>
@@ -58,7 +58,7 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter book title"
               required
             />
@@ -66,7 +66,7 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
           <div>
             <label
               htmlFor="author"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Author
             </label>
@@ -75,7 +75,7 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
               id="author"
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter author name"
               required
             />
@@ -83,7 +83,7 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
           <div>
             <label
               htmlFor="coverUrl"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Cover URL (optional)
             </label>
@@ -92,7 +92,7 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
               id="coverUrl"
               value={coverUrl}
               onChange={(e) => setCoverUrl(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="https://..."
             />
           </div>
@@ -100,7 +100,7 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               Cancel
             </button>

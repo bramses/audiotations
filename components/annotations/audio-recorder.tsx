@@ -147,12 +147,12 @@ export function AudioRecorder({
           disabled={isProcessing || isRecording}
           className={`
             w-16 h-16 rounded-full flex items-center justify-center transition-all
-            bg-gray-200 hover:bg-gray-300
+            bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600
             ${isProcessing || isRecording ? "opacity-50 cursor-not-allowed" : ""}
           `}
         >
           <svg
-            className="w-6 h-6 text-gray-600"
+            className="w-6 h-6 text-gray-600 dark:text-gray-300"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -174,7 +174,7 @@ export function AudioRecorder({
         />
       </div>
 
-      <p className="text-sm text-gray-600 text-center">
+      <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
         {isProcessing
           ? "Processing..."
           : isRecording
@@ -183,7 +183,7 @@ export function AudioRecorder({
       </p>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded">
+        <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 px-3 py-2 rounded">
           {error}
         </p>
       )}

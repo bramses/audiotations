@@ -79,7 +79,7 @@ export function SearchBar() {
           onKeyDown={handleKeyDown}
           onFocus={() => results.length > 0 && setIsOpen(true)}
           placeholder="Search your notes... (Enter for semantic search)"
-          className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          className="w-full px-4 py-3 pl-10 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
         />
         <svg
           className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -103,18 +103,18 @@ export function SearchBar() {
 
       {/* Results dropdown */}
       {isOpen && results.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 max-h-96 overflow-y-auto z-50">
           {results.map((result) => (
             <Link
               key={result.id}
               href={`/book/${result.bookId}`}
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+              className="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-b-0"
             >
-              <p className="text-sm text-gray-900 line-clamp-2">
+              <p className="text-sm text-gray-900 dark:text-gray-100 line-clamp-2">
                 {result.transcript}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {result.bookTitle} by {result.bookAuthor}
               </p>
             </Link>
