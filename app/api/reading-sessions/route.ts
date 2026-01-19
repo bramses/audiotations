@@ -2,65 +2,41 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// Get reading sessions for the past year (for heatmap)
+// Get annotation counts per day for current calendar year
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Get sessions from the past year
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-  oneYearAgo.setHours(0, 0, 0, 0);
+  // Get start and end of current year
+  const now = new Date();
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+  const yearEnd = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
 
-  const readingSessions = await prisma.readingSession.findMany({
+  // Get all annotations for the current year
+  const annotations = await prisma.annotation.findMany({
     where: {
-      userId: session.user.id,
-      date: { gte: oneYearAgo },
+      book: { userId: session.user.id },
+      createdAt: {
+        gte: yearStart,
+        lte: yearEnd,
+      },
     },
-    orderBy: { date: "asc" },
+    select: { createdAt: true },
+    orderBy: { createdAt: "asc" },
   });
 
-  // Group by date and count sessions per day
-  const sessionsByDate: Record<string, number> = {};
-  for (const rs of readingSessions) {
-    const dateStr = rs.date.toISOString().split("T")[0];
-    sessionsByDate[dateStr] = (sessionsByDate[dateStr] || 0) + 1;
+  // Group by date and count annotations per day
+  const countsByDate: Record<string, number> = {};
+  for (const a of annotations) {
+    const dateStr = a.createdAt.toISOString().split("T")[0];
+    countsByDate[dateStr] = (countsByDate[dateStr] || 0) + 1;
   }
 
-  // Also return total count
-  const totalSessions = readingSessions.length;
-
-  return NextResponse.json({ sessions: sessionsByDate, total: totalSessions });
-}
-
-// Log a reading session for today
-export async function POST() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  // Get today's date (date only, no time)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // Create new reading session
-  await prisma.readingSession.create({
-    data: {
-      userId: session.user.id,
-      date: today,
-    },
+  return NextResponse.json({
+    counts: countsByDate,
+    total: annotations.length,
+    year: now.getFullYear(),
   });
-
-  // Get today's count
-  const todayCount = await prisma.readingSession.count({
-    where: {
-      userId: session.user.id,
-      date: today,
-    },
-  });
-
-  return NextResponse.json({ success: true, todayCount });
 }
