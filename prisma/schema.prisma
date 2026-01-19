@@ -10,16 +10,17 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime?
-  name          String?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  books         Book[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id              String           @id @default(cuid())
+  email           String           @unique
+  emailVerified   DateTime?
+  name            String?
+  image           String?
+  accounts        Account[]
+  sessions        Session[]
+  books           Book[]
+  readingSessions ReadingSession[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@schema("public")
 }
@@ -90,5 +91,17 @@ model Annotation {
   createdAt  DateTime                    @default(now())
 
   @@index([bookId])
+  @@schema("public")
+}
+
+model ReadingSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, date])
   @@schema("public")
 }
