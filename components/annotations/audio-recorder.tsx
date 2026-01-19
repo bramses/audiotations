@@ -89,6 +89,18 @@ export function AudioRecorder({
     }
   }, [isRecording]);
 
+  const cancelRecording = useCallback(() => {
+    if (mediaRecorderRef.current && isRecording) {
+      // Remove the onstop handler so it doesn't process the audio
+      mediaRecorderRef.current.onstop = null;
+      // Stop all tracks
+      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+      mediaRecorderRef.current.stop();
+      chunksRef.current = [];
+      setIsRecording(false);
+    }
+  }, [isRecording]);
+
   const handleFileUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -105,66 +117,94 @@ export function AudioRecorder({
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex items-center gap-6">
-        {/* Record button */}
-        <button
-          onClick={isRecording ? stopRecording : startRecording}
-          disabled={isProcessing}
-          className={`
-            w-20 h-20 rounded-full flex items-center justify-center transition-all
-            ${
-              isRecording
-                ? "bg-red-500 hover:bg-red-600 animate-pulse"
-                : "bg-blue-600 hover:bg-blue-700"
-            }
-            ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}
-          `}
-        >
-          {isProcessing ? (
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
-          ) : isRecording ? (
-            <svg
-              className="w-8 h-8 text-white"
-              fill="currentColor"
-              viewBox="0 0 24 24"
+        {isRecording ? (
+          <>
+            {/* Cancel button */}
+            <button
+              onClick={cancelRecording}
+              className="w-16 h-16 rounded-full flex items-center justify-center transition-all bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
             >
-              <rect x="6" y="6" width="12" height="12" rx="2" />
-            </svg>
-          ) : (
-            <svg
-              className="w-8 h-8 text-white"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
-              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
-            </svg>
-          )}
-        </button>
+              <svg
+                className="w-6 h-6 text-gray-600 dark:text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
 
-        {/* Upload button */}
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isProcessing || isRecording}
-          className={`
-            w-16 h-16 rounded-full flex items-center justify-center transition-all
-            bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600
-            ${isProcessing || isRecording ? "opacity-50 cursor-not-allowed" : ""}
-          `}
-        >
-          <svg
-            className="w-6 h-6 text-gray-600 dark:text-gray-300"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-            />
-          </svg>
-        </button>
+            {/* Stop/Save button */}
+            <button
+              onClick={stopRecording}
+              className="w-20 h-20 rounded-full flex items-center justify-center transition-all bg-red-500 hover:bg-red-600 animate-pulse"
+            >
+              <svg
+                className="w-8 h-8 text-white"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <rect x="6" y="6" width="12" height="12" rx="2" />
+              </svg>
+            </button>
+          </>
+        ) : (
+          <>
+            {/* Record button */}
+            <button
+              onClick={startRecording}
+              disabled={isProcessing}
+              className={`
+                w-20 h-20 rounded-full flex items-center justify-center transition-all
+                bg-blue-600 hover:bg-blue-700
+                ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}
+              `}
+            >
+              {isProcessing ? (
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+              ) : (
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                </svg>
+              )}
+            </button>
+
+            {/* Upload button */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isProcessing}
+              className={`
+                w-16 h-16 rounded-full flex items-center justify-center transition-all
+                bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600
+                ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}
+              `}
+            >
+              <svg
+                className="w-6 h-6 text-gray-600 dark:text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                />
+              </svg>
+            </button>
+          </>
+        )}
         <input
           ref={fileInputRef}
           type="file"
@@ -178,7 +218,7 @@ export function AudioRecorder({
         {isProcessing
           ? "Processing..."
           : isRecording
-            ? "Recording... Click to stop"
+            ? "Recording... Stop to save, X to cancel"
             : "Record or upload a voice memo"}
       </p>
 

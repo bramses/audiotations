@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { AnnotationCard } from "./annotation-card";
 
 type Annotation = {
@@ -18,6 +19,8 @@ type AnnotationListProps = {
 export function AnnotationList({ bookId, refreshTrigger }: AnnotationListProps) {
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const highlightId = searchParams.get("highlight");
 
   const fetchAnnotations = useCallback(async () => {
     try {
@@ -67,6 +70,7 @@ export function AnnotationList({ bookId, refreshTrigger }: AnnotationListProps) 
           key={annotation.id}
           annotation={annotation}
           onDelete={handleDelete}
+          isHighlighted={annotation.id === highlightId}
         />
       ))}
     </div>

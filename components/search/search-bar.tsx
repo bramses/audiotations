@@ -107,7 +107,7 @@ export function SearchBar() {
           {results.map((result) => (
             <Link
               key={result.id}
-              href={`/book/${result.bookId}`}
+              href={`/book/${result.bookId}?highlight=${result.id}`}
               onClick={() => setIsOpen(false)}
               className="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-b-0"
             >
