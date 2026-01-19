@@ -115,6 +115,49 @@ export function AudioRecorder({
     [processAudio]
   );
 
+  const compressImage = useCallback(async (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Could not get canvas context"));
+          return;
+        }
+
+        // Max dimensions (keeps aspect ratio)
+        const MAX_WIDTH = 1920;
+        const MAX_HEIGHT = 1920;
+        let { width, height } = img;
+
+        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+          const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Failed to compress image"));
+            }
+          },
+          "image/jpeg",
+          0.85 // Quality
+        );
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = URL.createObjectURL(file);
+    });
+  }, []);
+
   const handleImageUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -127,8 +170,14 @@ export function AudioRecorder({
       setError(null);
 
       try {
+        // Compress large images
+        let imageToUpload: Blob = file;
+        if (file.size > 1024 * 1024) { // If larger than 1MB
+          imageToUpload = await compressImage(file);
+        }
+
         const formData = new FormData();
-        formData.append("image", file, file.name);
+        formData.append("image", imageToUpload, file.name.replace(/\.[^.]+$/, ".jpg"));
         formData.append("bookId", bookId);
 
         const res = await fetch("/api/transcribe-image", {
@@ -137,7 +186,7 @@ export function AudioRecorder({
         });
 
         if (!res.ok) {
-          const data = await res.json();
+          const data = await res.json().catch(() => ({ error: "Request too large or server error" }));
           throw new Error(data.error || "Failed to process image");
         }
 
@@ -151,7 +200,7 @@ export function AudioRecorder({
         setIsProcessing(false);
       }
     },
-    [bookId, onRecordingComplete]
+    [bookId, onRecordingComplete, compressImage]
   );
 
   return (
