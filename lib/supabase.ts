@@ -11,3 +11,4 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export const AUDIO_BUCKET = "audio";
+export const IMAGES_BUCKET = "images";

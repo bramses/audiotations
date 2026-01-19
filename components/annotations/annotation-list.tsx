@@ -8,6 +8,7 @@ type Annotation = {
   id: string;
   transcript: string;
   audioUrl: string | null;
+  imageUrl: string | null;
   createdAt: string;
 };
 
@@ -47,6 +48,12 @@ export function AnnotationList({ bookId, refreshTrigger }: AnnotationListProps) 
     }
   };
 
+  const handleUpdate = (id: string, transcript: string) => {
+    setAnnotations((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, transcript } : a))
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-8">
@@ -70,6 +77,7 @@ export function AnnotationList({ bookId, refreshTrigger }: AnnotationListProps) 
           key={annotation.id}
           annotation={annotation}
           onDelete={handleDelete}
+          onUpdate={handleUpdate}
           isHighlighted={annotation.id === highlightId}
         />
       ))}

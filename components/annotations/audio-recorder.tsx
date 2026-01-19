@@ -17,6 +17,7 @@ export function AudioRecorder({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const processAudio = useCallback(
     async (audioBlob: Blob, fileName: string) => {
@@ -114,6 +115,45 @@ export function AudioRecorder({
     [processAudio]
   );
 
+  const handleImageUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      // Reset input so same file can be selected again
+      e.target.value = "";
+
+      setIsProcessing(true);
+      setError(null);
+
+      try {
+        const formData = new FormData();
+        formData.append("image", file, file.name);
+        formData.append("bookId", bookId);
+
+        const res = await fetch("/api/transcribe-image", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Failed to process image");
+        }
+
+        onRecordingComplete();
+      } catch (err) {
+        console.error("Error processing image:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to process image"
+        );
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    [bookId, onRecordingComplete]
+  );
+
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex items-center gap-6">
@@ -179,18 +219,19 @@ export function AudioRecorder({
               )}
             </button>
 
-            {/* Upload button */}
+            {/* Audio Upload button */}
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isProcessing}
               className={`
-                w-16 h-16 rounded-full flex items-center justify-center transition-all
+                w-14 h-14 rounded-full flex items-center justify-center transition-all
                 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600
                 ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}
               `}
+              title="Upload audio"
             >
               <svg
-                className="w-6 h-6 text-gray-600 dark:text-gray-300"
+                className="w-5 h-5 text-gray-600 dark:text-gray-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -199,7 +240,33 @@ export function AudioRecorder({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                />
+              </svg>
+            </button>
+
+            {/* Image Upload button */}
+            <button
+              onClick={() => imageInputRef.current?.click()}
+              disabled={isProcessing}
+              className={`
+                w-14 h-14 rounded-full flex items-center justify-center transition-all
+                bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600
+                ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}
+              `}
+              title="Upload image"
+            >
+              <svg
+                className="w-5 h-5 text-gray-600 dark:text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
             </button>
@@ -212,6 +279,13 @@ export function AudioRecorder({
           onChange={handleFileUpload}
           className="hidden"
         />
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/*,.jpg,.jpeg,.png,.gif,.webp,.heic"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
       </div>
 
       <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
@@ -219,7 +293,7 @@ export function AudioRecorder({
           ? "Processing..."
           : isRecording
             ? "Recording... Stop to save, X to cancel"
-            : "Record or upload a voice memo"}
+            : "Record, upload audio, or upload image"}
       </p>
 
       {error && (

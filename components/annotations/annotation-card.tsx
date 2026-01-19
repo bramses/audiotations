@@ -1,28 +1,97 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 
 type Annotation = {
   id: string;
   transcript: string;
   audioUrl: string | null;
+  imageUrl: string | null;
   createdAt: string;
 };
 
 type AnnotationCardProps = {
   annotation: Annotation;
   onDelete?: (id: string) => void;
+  onUpdate?: (id: string, transcript: string) => void;
   isHighlighted?: boolean;
 };
 
 const SPEEDS = [1, 1.5, 2, 3] as const;
 
-export function AnnotationCard({ annotation, onDelete, isHighlighted }: AnnotationCardProps) {
+// Simple markdown renderer for links and italics
+function renderMarkdown(text: string): React.ReactNode {
+  // Split by markdown patterns while preserving them
+  const parts: React.ReactNode[] = [];
+  let remaining = text;
+  let key = 0;
+
+  while (remaining.length > 0) {
+    // Check for markdown link: [text](url)
+    const linkMatch = remaining.match(/\[([^\]]+)\]\(([^)]+)\)/);
+    // Check for italics: *text*
+    const italicMatch = remaining.match(/\*([^*]+)\*/);
+
+    // Find which comes first
+    const linkIndex = linkMatch ? remaining.indexOf(linkMatch[0]) : -1;
+    const italicIndex = italicMatch ? remaining.indexOf(italicMatch[0]) : -1;
+
+    let firstMatch: { type: "link" | "italic"; match: RegExpMatchArray; index: number } | null = null;
+
+    if (linkIndex !== -1 && (italicIndex === -1 || linkIndex < italicIndex)) {
+      firstMatch = { type: "link", match: linkMatch!, index: linkIndex };
+    } else if (italicIndex !== -1) {
+      firstMatch = { type: "italic", match: italicMatch!, index: italicIndex };
+    }
+
+    if (!firstMatch) {
+      // No more markdown, add remaining text
+      parts.push(remaining);
+      break;
+    }
+
+    // Add text before the match
+    if (firstMatch.index > 0) {
+      parts.push(remaining.slice(0, firstMatch.index));
+    }
+
+    // Add the formatted element
+    if (firstMatch.type === "link") {
+      const [, linkText, url] = firstMatch.match;
+      parts.push(
+        <a
+          key={key++}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 dark:text-blue-400 hover:underline"
+        >
+          {linkText}
+        </a>
+      );
+    } else {
+      const [, italicText] = firstMatch.match;
+      parts.push(<em key={key++}>{italicText}</em>);
+    }
+
+    // Continue with remaining text
+    remaining = remaining.slice(firstMatch.index + firstMatch.match[0].length);
+  }
+
+  return parts;
+}
+
+export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }: AnnotationCardProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [speed, setSpeed] = useState<number>(1);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [highlight, setHighlight] = useState(isHighlighted);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTranscript, setEditedTranscript] = useState(annotation.transcript);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (isHighlighted && cardRef.current) {
@@ -32,6 +101,16 @@ export function AnnotationCard({ annotation, onDelete, isHighlighted }: Annotati
       return () => clearTimeout(timer);
     }
   }, [isHighlighted]);
+
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(
+        textareaRef.current.value.length,
+        textareaRef.current.value.length
+      );
+    }
+  }, [isEditing]);
 
   const date = new Date(annotation.createdAt);
   const formattedDate = date.toLocaleDateString("en-US", {
@@ -59,6 +138,39 @@ export function AnnotationCard({ annotation, onDelete, isHighlighted }: Annotati
     }
   };
 
+  const handleSave = useCallback(async () => {
+    if (!editedTranscript.trim() || editedTranscript === annotation.transcript) {
+      setIsEditing(false);
+      setEditedTranscript(annotation.transcript);
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/annotations/${annotation.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transcript: editedTranscript }),
+      });
+
+      if (res.ok) {
+        if (onUpdate) {
+          onUpdate(annotation.id, editedTranscript);
+        }
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error("Failed to save:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [annotation.id, annotation.transcript, editedTranscript, onUpdate]);
+
+  const handleCancel = () => {
+    setEditedTranscript(annotation.transcript);
+    setIsEditing(false);
+  };
+
   return (
     <>
       <div
@@ -70,7 +182,57 @@ export function AnnotationCard({ annotation, onDelete, isHighlighted }: Annotati
             : "border-gray-200 dark:border-gray-800"
         }`}
       >
-        <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{annotation.transcript}</p>
+        {/* Image display */}
+        {annotation.imageUrl && (
+          <div className="mb-3">
+            <a href={annotation.imageUrl} target="_blank" rel="noopener noreferrer">
+              <Image
+                src={annotation.imageUrl}
+                alt="Annotation image"
+                width={400}
+                height={300}
+                className="rounded-lg max-h-64 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
+              />
+            </a>
+          </div>
+        )}
+
+        {/* Transcript with edit mode */}
+        {isEditing ? (
+          <div className="space-y-2">
+            <textarea
+              ref={textareaRef}
+              value={editedTranscript}
+              onChange={(e) => setEditedTranscript(e.target.value)}
+              className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              rows={4}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Supports *italics* and [links](url)
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={isSaving}
+                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+            {renderMarkdown(annotation.transcript)}
+          </p>
+        )}
+
         <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <span className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</span>
@@ -92,7 +254,15 @@ export function AnnotationCard({ annotation, onDelete, isHighlighted }: Annotati
                   />
                 </>
               )}
-              {onDelete && (
+              {!isEditing && (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                >
+                  Edit
+                </button>
+              )}
+              {onDelete && !isEditing && (
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
                   className="px-3 py-1.5 text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950 rounded transition-colors"
@@ -118,7 +288,7 @@ export function AnnotationCard({ annotation, onDelete, isHighlighted }: Annotati
               Delete Note?
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              This will permanently delete this note and its audio recording.
+              This will permanently delete this note and its recording.
             </p>
             <div className="flex gap-3">
               <button

@@ -84,6 +84,7 @@ model Annotation {
   transcript String
   embedding  Unsupported("vector(1536)")?
   audioUrl   String?
+  imageUrl   String?
   bookId     String
   book       Book                        @relation(fields: [bookId], references: [id], onDelete: Cascade)
   createdAt  DateTime                    @default(now())
