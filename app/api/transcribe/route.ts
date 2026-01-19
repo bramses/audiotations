@@ -38,13 +38,18 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Upload audio to Supabase Storage
-    const fileName = `${session.user.id}/${bookId}/${Date.now()}.webm`;
+    // Detect file extension and MIME type from uploaded file
+    const originalName = audioFile.name || "recording.webm";
+    const extension = originalName.split(".").pop()?.toLowerCase() || "webm";
+    const mimeType = audioFile.type || `audio/${extension}`;
+
+    const fileName = `${session.user.id}/${bookId}/${Date.now()}.${extension}`;
     const audioBuffer = await audioFile.arrayBuffer();
 
     const { error: uploadError } = await supabaseAdmin.storage
       .from(AUDIO_BUCKET)
       .upload(fileName, audioBuffer, {
-        contentType: "audio/webm",
+        contentType: mimeType,
         upsert: false,
       });
 
@@ -63,8 +68,8 @@ export async function POST(req: NextRequest) {
 
     // 2. Transcribe with Whisper
     const transcription = await openai.audio.transcriptions.create({
-      file: await toFile(Buffer.from(audioBuffer), "audio.webm", {
-        type: "audio/webm",
+      file: await toFile(Buffer.from(audioBuffer), originalName, {
+        type: mimeType,
       }),
       model: WHISPER_MODEL,
     });
