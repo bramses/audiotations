@@ -59,11 +59,9 @@ export function AudioRecorder({
 
       // Get preferred microphone
       const preferredMicId = getPreferredMicId();
-      const audioConstraints: MediaTrackConstraints = preferredMicId
-        ? { deviceId: { exact: preferredMicId } }
-        : true;
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: preferredMicId ? { deviceId: { exact: preferredMicId } } : true,
+      });
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: "audio/webm;codecs=opus",
       });
