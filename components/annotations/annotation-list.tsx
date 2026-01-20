@@ -9,6 +9,8 @@ type Annotation = {
   transcript: string;
   audioUrl: string | null;
   imageUrl: string | null;
+  pageNumber: string | null;
+  location: string | null;
   createdAt: string;
 };
 

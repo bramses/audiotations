@@ -76,13 +76,26 @@ export async function POST(req: NextRequest) {
 
     const rawTranscript = transcription.text;
 
-    // 3. Clean up with GPT
+    // 3. Clean up with GPT and extract metadata
     const cleanupResponse = await openai.chat.completions.create({
       model: CLEANUP_MODEL,
       messages: [
         {
           role: "system",
-          content: `You are a transcript editor. Clean up the following transcript of a book note/annotation. Fix grammar, punctuation, and formatting while preserving the original meaning. Remove filler words like "um", "uh", "like" when they don't add meaning. Format the text in clear paragraphs. Return only the cleaned transcript, nothing else.`,
+          content: `You are a transcript editor for book notes. Clean up the transcript while preserving meaning. Remove filler words ("um", "uh", "like").
+
+IMPORTANT: Look for metadata phrases that sound like:
+- "Meta Note Page [number]" (or mishearings like "meta note paid", "met a note page", "meta no page")
+- "Meta Note Location [number]" (or mishearings like "meta note locate", "met a note location")
+
+If found, extract the page or location number and REMOVE that phrase from the transcript.
+
+Return JSON in this exact format:
+{
+  "transcript": "cleaned transcript text without the meta note phrases",
+  "pageNumber": "extracted page number or null",
+  "location": "extracted location number or null"
+}`,
         },
         {
           role: "user",
@@ -90,10 +103,21 @@ export async function POST(req: NextRequest) {
         },
       ],
       temperature: 0.3,
+      response_format: { type: "json_object" },
     });
 
-    const cleanedTranscript =
-      cleanupResponse.choices[0]?.message?.content || rawTranscript;
+    let cleanedTranscript = rawTranscript;
+    let pageNumber: string | null = null;
+    let location: string | null = null;
+
+    try {
+      const parsed = JSON.parse(cleanupResponse.choices[0]?.message?.content || "{}");
+      cleanedTranscript = parsed.transcript || rawTranscript;
+      pageNumber = parsed.pageNumber || null;
+      location = parsed.location || null;
+    } catch {
+      cleanedTranscript = cleanupResponse.choices[0]?.message?.content || rawTranscript;
+    }
 
     // 4. Generate embedding
     const embeddingResponse = await openai.embeddings.create({
@@ -107,12 +131,14 @@ export async function POST(req: NextRequest) {
 
     // 5. Store annotation with embedding using raw SQL for vector type
     const annotation = await prisma.$queryRaw<{ id: string }[]>`
-      INSERT INTO "Annotation" (id, transcript, embedding, "audioUrl", "bookId", "createdAt")
+      INSERT INTO "Annotation" (id, transcript, embedding, "audioUrl", "pageNumber", location, "bookId", "createdAt")
       VALUES (
         ${crypto.randomUUID()},
         ${cleanedTranscript},
         ${embeddingStr}::vector,
         ${publicUrl},
+        ${pageNumber},
+        ${location},
         ${bookId},
         NOW()
       )
@@ -123,6 +149,8 @@ export async function POST(req: NextRequest) {
       id: annotation[0].id,
       transcript: cleanedTranscript,
       audioUrl: publicUrl,
+      pageNumber,
+      location,
     });
   } catch (error) {
     console.error("Transcription error:", error);

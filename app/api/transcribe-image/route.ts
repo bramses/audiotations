@@ -72,7 +72,18 @@ export async function POST(req: NextRequest) {
           content: [
             {
               type: "text",
-              text: "This is a photo of a page or section from a book. If there is text visible, transcribe it accurately. If it's a diagram, illustration, or image without text, describe what you see in detail. Focus on the content that would be relevant for book notes/annotations. Return only the transcription or description, nothing else.",
+              text: `This is a photo of a page or section from a book. Transcribe any visible text accurately. If it's a diagram or illustration, describe it in detail.
+
+Also look for:
+- Page numbers (often at top or bottom of page)
+- Location numbers (for e-readers like Kindle)
+
+Return JSON in this exact format:
+{
+  "transcript": "the transcribed text or description",
+  "pageNumber": "page number if visible, or null",
+  "location": "location number if visible, or null"
+}`,
             },
             {
               type: "image_url",
@@ -85,10 +96,21 @@ export async function POST(req: NextRequest) {
         },
       ],
       max_tokens: 2000,
+      response_format: { type: "json_object" },
     });
 
-    const transcript =
-      visionResponse.choices[0]?.message?.content || "Unable to process image";
+    let transcript = "Unable to process image";
+    let pageNumber: string | null = null;
+    let location: string | null = null;
+
+    try {
+      const parsed = JSON.parse(visionResponse.choices[0]?.message?.content || "{}");
+      transcript = parsed.transcript || "Unable to process image";
+      pageNumber = parsed.pageNumber || null;
+      location = parsed.location || null;
+    } catch {
+      transcript = visionResponse.choices[0]?.message?.content || "Unable to process image";
+    }
 
     // 4. Generate embedding
     const embeddingResponse = await openai.embeddings.create({
@@ -101,12 +123,14 @@ export async function POST(req: NextRequest) {
 
     // 5. Store annotation with embedding using raw SQL for vector type
     const annotation = await prisma.$queryRaw<{ id: string }[]>`
-      INSERT INTO "Annotation" (id, transcript, embedding, "imageUrl", "bookId", "createdAt")
+      INSERT INTO "Annotation" (id, transcript, embedding, "imageUrl", "pageNumber", location, "bookId", "createdAt")
       VALUES (
         ${crypto.randomUUID()},
         ${transcript},
         ${embeddingStr}::vector,
         ${publicUrl},
+        ${pageNumber},
+        ${location},
         ${bookId},
         NOW()
       )
@@ -117,6 +141,8 @@ export async function POST(req: NextRequest) {
       id: annotation[0].id,
       transcript,
       imageUrl: publicUrl,
+      pageNumber,
+      location,
     });
   } catch (error) {
     console.error("Image transcription error:", error);
