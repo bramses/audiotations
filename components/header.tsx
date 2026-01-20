@@ -1,5 +1,6 @@
 import { auth, signOut } from "@/lib/auth";
 import Link from "next/link";
+import { SettingsButton } from "./settings/settings-button";
 
 export async function Header() {
   const session = await auth();
@@ -12,7 +13,8 @@ export async function Header() {
         </Link>
         {session?.user && (
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400">{session.user.email}</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">{session.user.email}</span>
+            <SettingsButton />
             <form
               action={async () => {
                 "use server";

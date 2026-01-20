@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { getPreferredMicId } from "@/components/settings/mic-settings";
 
 type AudioRecorderProps = {
   bookId: string;
@@ -55,7 +56,14 @@ export function AudioRecorder({
   const startRecording = useCallback(async () => {
     try {
       setError(null);
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Get preferred microphone
+      const preferredMicId = getPreferredMicId();
+      const audioConstraints: MediaTrackConstraints = preferredMicId
+        ? { deviceId: { exact: preferredMicId } }
+        : true;
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: "audio/webm;codecs=opus",
       });
