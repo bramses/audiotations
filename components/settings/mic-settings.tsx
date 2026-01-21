@@ -7,11 +7,14 @@ type MicSettingsProps = {
   onClose: () => void;
 };
 
+const DEFAULT_THRESHOLD = 0.3;
+
 export function MicSettings({ isOpen, onClose }: MicSettingsProps) {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [threshold, setThreshold] = useState<number>(DEFAULT_THRESHOLD);
 
   const loadDevices = useCallback(async () => {
     setLoading(true);
@@ -45,12 +48,22 @@ export function MicSettings({ isOpen, onClose }: MicSettingsProps) {
   useEffect(() => {
     if (isOpen) {
       loadDevices();
+      // Load threshold
+      const savedThreshold = localStorage.getItem("searchThreshold");
+      if (savedThreshold) {
+        setThreshold(parseFloat(savedThreshold));
+      }
     }
   }, [isOpen, loadDevices]);
 
   const handleSelect = (deviceId: string) => {
     setSelectedDeviceId(deviceId);
     localStorage.setItem("preferredMicId", deviceId);
+  };
+
+  const handleThresholdChange = (value: number) => {
+    setThreshold(value);
+    localStorage.setItem("searchThreshold", value.toString());
   };
 
   if (!isOpen) return null;
@@ -130,9 +143,31 @@ export function MicSettings({ isOpen, onClose }: MicSettingsProps) {
             )}
           </div>
 
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Your selection is saved automatically and will be used for all recordings.
-          </p>
+          {/* Search Threshold */}
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Semantic Search Threshold
+            </label>
+            <div className="space-y-2">
+              <input
+                type="range"
+                min="0.1"
+                max="1.0"
+                step="0.05"
+                value={threshold}
+                onChange={(e) => handleThresholdChange(parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                <span>Strict (0.1)</span>
+                <span className="font-medium text-gray-900 dark:text-white">{threshold.toFixed(2)}</span>
+                <span>Loose (1.0)</span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Lower values return more relevant results. Higher values return more results but may be less accurate.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -143,4 +178,11 @@ export function MicSettings({ isOpen, onClose }: MicSettingsProps) {
 export function getPreferredMicId(): string | undefined {
   if (typeof window === "undefined") return undefined;
   return localStorage.getItem("preferredMicId") || undefined;
+}
+
+// Helper to get the search threshold
+export function getSearchThreshold(): number {
+  if (typeof window === "undefined") return DEFAULT_THRESHOLD;
+  const saved = localStorage.getItem("searchThreshold");
+  return saved ? parseFloat(saved) : DEFAULT_THRESHOLD;
 }

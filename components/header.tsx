@@ -8,9 +8,19 @@ export async function Header() {
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
-          Audiotations
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
+            Audiotations
+          </Link>
+          {session?.user && (
+            <Link
+              href="/feed"
+              className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            >
+              Random Notes
+            </Link>
+          )}
+        </div>
         {session?.user && (
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">{session.user.email}</span>

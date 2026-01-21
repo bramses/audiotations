@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { getSearchThreshold } from "@/components/settings/mic-settings";
 
 type SearchResult = {
   id: string;
@@ -53,8 +54,9 @@ export function SearchBar() {
         e.preventDefault();
         setLoading(true);
         try {
+          const threshold = getSearchThreshold();
           const res = await fetch(
-            `/api/search?q=${encodeURIComponent(query)}&mode=hybrid`
+            `/api/search?q=${encodeURIComponent(query)}&mode=hybrid&threshold=${threshold}`
           );
           if (res.ok) {
             const data = await res.json();

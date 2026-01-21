@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
 
   const query = req.nextUrl.searchParams.get("q");
   const mode = req.nextUrl.searchParams.get("mode") || "fts";
+  const threshold = parseFloat(req.nextUrl.searchParams.get("threshold") || "0.3");
 
   if (!query?.trim()) {
     return NextResponse.json([]);
@@ -76,11 +77,13 @@ export async function GET(req: NextRequest) {
       vector_results AS (
         SELECT
           a.id,
+          a.embedding <=> ${embeddingStr}::vector as distance,
           ROW_NUMBER() OVER (ORDER BY a.embedding <=> ${embeddingStr}::vector) as vec_rank
         FROM "Annotation" a
         JOIN "Book" b ON a."bookId" = b.id
         WHERE b."userId" = ${userId}
           AND a.embedding IS NOT NULL
+          AND a.embedding <=> ${embeddingStr}::vector <= ${threshold}
         LIMIT 50
       ),
       combined AS (
