@@ -24,18 +24,14 @@ const SPEEDS = [1, 1.5, 2, 3] as const;
 
 // Simple markdown renderer for links and italics
 function renderMarkdown(text: string): React.ReactNode {
-  // Split by markdown patterns while preserving them
   const parts: React.ReactNode[] = [];
   let remaining = text;
   let key = 0;
 
   while (remaining.length > 0) {
-    // Check for markdown link: [text](url)
     const linkMatch = remaining.match(/\[([^\]]+)\]\(([^)]+)\)/);
-    // Check for italics: *text*
     const italicMatch = remaining.match(/\*([^*]+)\*/);
 
-    // Find which comes first
     const linkIndex = linkMatch ? remaining.indexOf(linkMatch[0]) : -1;
     const italicIndex = italicMatch ? remaining.indexOf(italicMatch[0]) : -1;
 
@@ -48,17 +44,14 @@ function renderMarkdown(text: string): React.ReactNode {
     }
 
     if (!firstMatch) {
-      // No more markdown, add remaining text
       parts.push(remaining);
       break;
     }
 
-    // Add text before the match
     if (firstMatch.index > 0) {
       parts.push(remaining.slice(0, firstMatch.index));
     }
 
-    // Add the formatted element
     if (firstMatch.type === "link") {
       const [, linkText, url] = firstMatch.match;
       parts.push(
@@ -67,7 +60,8 @@ function renderMarkdown(text: string): React.ReactNode {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 dark:text-blue-400 hover:underline"
+          className="hover:underline"
+          style={{ color: "var(--accent-burgundy)" }}
         >
           {linkText}
         </a>
@@ -77,7 +71,6 @@ function renderMarkdown(text: string): React.ReactNode {
       parts.push(<em key={key++}>{italicText}</em>);
     }
 
-    // Continue with remaining text
     remaining = remaining.slice(firstMatch.index + firstMatch.match[0].length);
   }
 
@@ -178,15 +171,18 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
       <div
         ref={cardRef}
         id={`annotation-${annotation.id}`}
-        className={`bg-white dark:bg-gray-900 rounded-lg shadow-sm border p-4 transition-all duration-500 ${
-          highlight
-            ? "border-blue-500 ring-2 ring-blue-500 ring-opacity-50"
-            : "border-gray-200 dark:border-gray-800"
-        }`}
+        className="rounded-lg p-5 transition-all duration-500"
+        style={{
+          background: "var(--card)",
+          border: highlight ? "2px solid var(--accent-gold)" : "1px solid var(--card-border)",
+          boxShadow: highlight
+            ? "0 0 20px rgba(184, 134, 11, 0.3)"
+            : "0 2px 8px rgba(44, 24, 16, 0.06)",
+        }}
       >
         {/* Image display */}
         {annotation.imageUrl && (
-          <div className="mb-3">
+          <div className="mb-4">
             <a href={annotation.imageUrl} target="_blank" rel="noopener noreferrer">
               <Image
                 src={annotation.imageUrl}
@@ -194,6 +190,7 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
                 width={400}
                 height={300}
                 className="rounded-lg max-h-64 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                style={{ border: "1px solid var(--card-border)" }}
               />
             </a>
           </div>
@@ -201,45 +198,68 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
 
         {/* Transcript with edit mode */}
         {isEditing ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <textarea
               ref={textareaRef}
               value={editedTranscript}
               onChange={(e) => setEditedTranscript(e.target.value)}
-              className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full p-3 rounded-lg resize-none"
+              style={{
+                background: "var(--background)",
+                border: "1px solid var(--card-border)",
+                color: "var(--foreground)",
+              }}
               rows={4}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>
               Supports *italics* and [links](url)
             </p>
             <div className="flex gap-2">
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 text-sm rounded-lg transition-opacity hover:opacity-90 disabled:opacity-50"
+                style={{
+                  background: "var(--accent-gold)",
+                  color: "var(--card)",
+                }}
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
               <button
                 onClick={handleCancel}
                 disabled={isSaving}
-                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="px-4 py-2 text-sm rounded-lg transition-opacity hover:opacity-90"
+                style={{
+                  border: "1px solid var(--card-border)",
+                  color: "var(--foreground-muted)",
+                }}
               >
                 Cancel
               </button>
             </div>
           </div>
         ) : (
-          <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+          <p
+            className="whitespace-pre-wrap leading-relaxed"
+            style={{ color: "var(--foreground)" }}
+          >
             {renderMarkdown(annotation.transcript)}
           </p>
         )}
 
-        {/* Metadata */}
+        {/* Metadata badges */}
         {(annotation.pageNumber || annotation.location) && (
-          <div className="mt-3 flex items-center gap-3 text-xs">
+          <div className="mt-4 flex items-center gap-3 text-xs">
             {annotation.pageNumber && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded">
+              <span
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded"
+                style={{
+                  background: "var(--brown-100)",
+                  color: "var(--brown-600)",
+                  border: "1px solid var(--brown-200)",
+                }}
+              >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
@@ -247,7 +267,14 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
               </span>
             )}
             {annotation.location && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 rounded">
+              <span
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded"
+                style={{
+                  background: "var(--brown-100)",
+                  color: "var(--brown-600)",
+                  border: "1px solid var(--brown-200)",
+                }}
+              >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -258,15 +285,24 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
           </div>
         )}
 
-        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+        <div
+          className="mt-4 pt-4 border-t"
+          style={{ borderColor: "var(--card-border)" }}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <span className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</span>
+            <span className="text-xs" style={{ color: "var(--foreground-muted)" }}>
+              {formattedDate}
+            </span>
             <div className="flex items-center gap-2 flex-wrap">
               {annotation.audioUrl && (
                 <>
                   <button
                     onClick={cycleSpeed}
-                    className="px-3 py-1.5 text-sm font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 rounded transition-colors"
+                    className="px-3 py-1.5 text-sm font-medium rounded transition-colors"
+                    style={{
+                      background: "var(--brown-100)",
+                      color: "var(--brown-600)",
+                    }}
                   >
                     {speed}x
                   </button>
@@ -282,7 +318,8 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
               {!isEditing && (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                  className="px-3 py-1.5 text-sm rounded transition-opacity hover:opacity-70"
+                  style={{ color: "var(--foreground-muted)" }}
                 >
                   Edit
                 </button>
@@ -290,7 +327,8 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
               {onDelete && !isEditing && (
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="px-3 py-1.5 text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950 rounded transition-colors"
+                  className="px-3 py-1.5 text-sm rounded transition-opacity hover:opacity-70"
+                  style={{ color: "var(--accent-burgundy)" }}
                 >
                   Delete
                 </button>
@@ -304,27 +342,48 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0"
+            style={{ background: "rgba(26, 15, 8, 0.6)" }}
             onClick={() => setShowDeleteConfirm(false)}
             aria-hidden
           />
-          <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          <div
+            className="relative rounded-lg shadow-xl w-full max-w-sm p-6"
+            style={{
+              background: "var(--card)",
+              border: "1px solid var(--card-border)",
+            }}
+          >
+            <h3
+              className="text-lg font-semibold mb-2"
+              style={{
+                color: "var(--foreground)",
+                fontFamily: "var(--font-playfair), Georgia, serif",
+              }}
+            >
               Delete Note?
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm mb-4" style={{ color: "var(--foreground-muted)" }}>
               This will permanently delete this note and its recording.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="flex-1 px-4 py-2 rounded-lg transition-opacity hover:opacity-90"
+                style={{
+                  border: "1px solid var(--card-border)",
+                  color: "var(--foreground-muted)",
+                }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="flex-1 px-4 py-2 rounded-lg transition-opacity hover:opacity-90"
+                style={{
+                  background: "var(--accent-burgundy)",
+                  color: "var(--card)",
+                }}
               >
                 Delete
               </button>

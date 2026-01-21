@@ -70,7 +70,10 @@ export function BookList() {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100" />
+        <div
+          className="animate-spin rounded-full h-8 w-8 border-b-2"
+          style={{ borderColor: "var(--accent-gold)" }}
+        />
       </div>
     );
   }
@@ -80,18 +83,31 @@ export function BookList() {
       {/* Currently Reading Section */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h2
+            className="text-xl font-semibold"
+            style={{
+              color: "var(--foreground)",
+              fontFamily: "var(--font-playfair), Georgia, serif",
+            }}
+          >
             Currently Reading
           </h2>
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 text-sm rounded-lg transition-opacity hover:opacity-90"
+            style={{
+              background: "var(--accent-gold)",
+              color: "var(--card)",
+            }}
           >
             + Add Book
           </button>
         </div>
         {currentlyReading.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400 py-8 text-center">
+          <p
+            className="py-8 text-center"
+            style={{ color: "var(--foreground-muted)" }}
+          >
             No books yet. Add one to get started!
           </p>
         ) : (
@@ -112,14 +128,18 @@ export function BookList() {
         <section>
           <button
             onClick={() => setShowArchived(!showArchived)}
-            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
+            className="flex items-center gap-2 mb-4 transition-opacity hover:opacity-70"
+            style={{ color: "var(--foreground-muted)" }}
           >
             <span
               className={`transform transition-transform ${showArchived ? "rotate-90" : ""}`}
             >
               ▶
             </span>
-            <h2 className="text-lg font-medium">
+            <h2
+              className="text-lg font-medium"
+              style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
+            >
               Archived ({archivedBooks.length})
             </h2>
           </button>

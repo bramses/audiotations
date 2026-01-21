@@ -98,9 +98,7 @@ export function AudioRecorder({
 
   const cancelRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
-      // Remove the onstop handler so it doesn't process the audio
       mediaRecorderRef.current.onstop = null;
-      // Stop all tracks
       mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
       mediaRecorderRef.current.stop();
       chunksRef.current = [];
@@ -113,9 +111,7 @@ export function AudioRecorder({
       const file = e.target.files?.[0];
       if (!file) return;
 
-      // Reset input so same file can be selected again
       e.target.value = "";
-
       await processAudio(file, file.name);
     },
     [processAudio]
@@ -132,7 +128,6 @@ export function AudioRecorder({
           return;
         }
 
-        // Max dimensions (keeps aspect ratio)
         const MAX_WIDTH = 1920;
         const MAX_HEIGHT = 1920;
         let { width, height } = img;
@@ -156,7 +151,7 @@ export function AudioRecorder({
             }
           },
           "image/jpeg",
-          0.85 // Quality
+          0.85
         );
       };
       img.onerror = () => reject(new Error("Failed to load image"));
@@ -169,16 +164,14 @@ export function AudioRecorder({
       const file = e.target.files?.[0];
       if (!file) return;
 
-      // Reset input so same file can be selected again
       e.target.value = "";
 
       setIsProcessing(true);
       setError(null);
 
       try {
-        // Compress large images
         let imageToUpload: Blob = file;
-        if (file.size > 1024 * 1024) { // If larger than 1MB
+        if (file.size > 1024 * 1024) {
           imageToUpload = await compressImage(file);
         }
 
@@ -217,13 +210,17 @@ export function AudioRecorder({
             {/* Cancel button */}
             <button
               onClick={cancelRecording}
-              className="w-16 h-16 rounded-full flex items-center justify-center transition-all bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+              className="w-16 h-16 rounded-full flex items-center justify-center transition-all"
+              style={{
+                background: "var(--brown-200)",
+              }}
             >
               <svg
-                className="w-6 h-6 text-gray-600 dark:text-gray-300"
+                className="w-6 h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                style={{ color: "var(--brown-600)" }}
               >
                 <path
                   strokeLinecap="round"
@@ -237,7 +234,8 @@ export function AudioRecorder({
             {/* Stop/Save button */}
             <button
               onClick={stopRecording}
-              className="w-20 h-20 rounded-full flex items-center justify-center transition-all bg-red-500 hover:bg-red-600 animate-pulse"
+              className="w-20 h-20 rounded-full flex items-center justify-center transition-all animate-pulse"
+              style={{ background: "var(--accent-burgundy)" }}
             >
               <svg
                 className="w-8 h-8 text-white"
@@ -256,17 +254,21 @@ export function AudioRecorder({
               disabled={isProcessing}
               className={`
                 w-20 h-20 rounded-full flex items-center justify-center transition-all
-                bg-blue-600 hover:bg-blue-700
-                ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}
+                ${isProcessing ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"}
               `}
+              style={{ background: "var(--accent-gold)" }}
             >
               {isProcessing ? (
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+                <div
+                  className="animate-spin rounded-full h-8 w-8 border-b-2"
+                  style={{ borderColor: "var(--card)" }}
+                />
               ) : (
                 <svg
-                  className="w-8 h-8 text-white"
+                  className="w-8 h-8"
                   fill="currentColor"
                   viewBox="0 0 24 24"
+                  style={{ color: "var(--card)" }}
                 >
                   <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
                   <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
@@ -280,16 +282,17 @@ export function AudioRecorder({
               disabled={isProcessing}
               className={`
                 w-14 h-14 rounded-full flex items-center justify-center transition-all
-                bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600
-                ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}
+                ${isProcessing ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"}
               `}
+              style={{ background: "var(--brown-200)" }}
               title="Upload audio"
             >
               <svg
-                className="w-5 h-5 text-gray-600 dark:text-gray-300"
+                className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                style={{ color: "var(--brown-600)" }}
               >
                 <path
                   strokeLinecap="round"
@@ -306,16 +309,17 @@ export function AudioRecorder({
               disabled={isProcessing}
               className={`
                 w-14 h-14 rounded-full flex items-center justify-center transition-all
-                bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600
-                ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}
+                ${isProcessing ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"}
               `}
+              style={{ background: "var(--brown-200)" }}
               title="Upload image"
             >
               <svg
-                className="w-5 h-5 text-gray-600 dark:text-gray-300"
+                className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                style={{ color: "var(--brown-600)" }}
               >
                 <path
                   strokeLinecap="round"
@@ -343,7 +347,7 @@ export function AudioRecorder({
         />
       </div>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+      <p className="text-sm text-center" style={{ color: "var(--foreground-muted)" }}>
         {isProcessing
           ? "Processing..."
           : isRecording
@@ -352,7 +356,14 @@ export function AudioRecorder({
       </p>
 
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 px-3 py-2 rounded">
+        <p
+          className="text-sm px-3 py-2 rounded"
+          style={{
+            color: "var(--accent-burgundy)",
+            background: "var(--brown-100)",
+            border: "1px solid var(--brown-200)",
+          }}
+        >
           {error}
         </p>
       )}

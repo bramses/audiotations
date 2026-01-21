@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Warm library palette - light mode */
+  --background: #F5F0E6;
+  --background-secondary: #EDE6D6;
+  --foreground: #2C1810;
+  --foreground-muted: #6B5344;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Card and surface colors */
+  --card: #FFFEF8;
+  --card-border: #D4C4A8;
+  --card-hover: #FFF9ED;
+
+  /* Accent colors */
+  --accent-gold: #B8860B;
+  --accent-gold-light: #DAA520;
+  --accent-burgundy: #722F37;
+  --accent-burgundy-light: #8B3A42;
+
+  /* Warm browns for UI elements */
+  --brown-100: #F5EDE0;
+  --brown-200: #E8D9C4;
+  --brown-300: #D4C4A8;
+  --brown-400: #B39B7D;
+  --brown-500: #8B7355;
+  --brown-600: #6B5344;
+  --brown-700: #4A3728;
+  --brown-800: #2C1810;
+  --brown-900: #1A0F08;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Rich dark library palette */
+    --background: #1A1410;
+    --background-secondary: #241C16;
+    --foreground: #E8DFD0;
+    --foreground-muted: #A89880;
+
+    /* Card and surface colors - dark */
+    --card: #2C2218;
+    --card-border: #4A3D2E;
+    --card-hover: #352A1E;
+
+    /* Accent colors remain similar but adjusted */
+    --accent-gold: #DAA520;
+    --accent-gold-light: #F0C040;
+    --accent-burgundy: #A54550;
+    --accent-burgundy-light: #C45560;
+
+    /* Dark mode browns */
+    --brown-100: #2C2218;
+    --brown-200: #352A1E;
+    --brown-300: #4A3D2E;
+    --brown-400: #6B5A48;
+    --brown-500: #8B7A68;
+    --brown-600: #A89880;
+    --brown-700: #C4B8A8;
+    --brown-800: #E0D8CC;
+    --brown-900: #F5F0E6;
   }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+  --color-card-hover: var(--card-hover);
+  --color-gold: var(--accent-gold);
+  --color-gold-light: var(--accent-gold-light);
+  --color-burgundy: var(--accent-burgundy);
+  --color-burgundy-light: var(--accent-burgundy-light);
+  --font-serif: var(--font-lora);
+  --font-display: var(--font-playfair);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-lora), Georgia, 'Times New Roman', serif;
+}
+
+/* Custom scrollbar for library feel */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brown-400);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brown-500);
+}
+
+/* Audio player styling */
+audio::-webkit-media-controls-panel {
+  background: var(--card);
+}
+
+/* Range input styling for settings */
+input[type="range"] {
+  accent-color: var(--accent-gold);
+}
+
+/* Focus states with gold accent */
+input:focus, textarea:focus, button:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+/* Selection styling */
+::selection {
+  background: var(--accent-gold);
+  color: var(--background);
 }

@@ -36,7 +36,8 @@ export default async function BookPage({ params }: Props) {
         <div className="mb-8">
           <Link
             href="/"
-            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm mb-4 inline-block"
+            className="text-sm mb-4 inline-block transition-opacity hover:opacity-70"
+            style={{ color: "var(--accent-gold)" }}
           >
             &larr; Back to books
           </Link>
@@ -50,15 +51,39 @@ export default async function BookPage({ params }: Props) {
                 className="w-32 h-48 object-cover rounded-lg shadow"
               />
             ) : (
-              <div className="w-32 h-48 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 rounded-lg shadow flex items-center justify-center">
-                <span className="text-4xl text-gray-400 dark:text-gray-500">
+              <div
+                className="w-32 h-48 rounded-lg shadow flex items-center justify-center"
+                style={{
+                  background: "linear-gradient(135deg, var(--brown-300) 0%, var(--brown-400) 100%)",
+                }}
+              >
+                <span
+                  className="text-4xl"
+                  style={{
+                    color: "var(--card)",
+                    fontFamily: "var(--font-playfair), Georgia, serif",
+                  }}
+                >
                   {book.title.charAt(0)}
                 </span>
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{book.title}</h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400">{book.author}</p>
+              <h1
+                className="text-2xl font-bold"
+                style={{
+                  color: "var(--foreground)",
+                  fontFamily: "var(--font-playfair), Georgia, serif",
+                }}
+              >
+                {book.title}
+              </h1>
+              <p
+                className="text-lg"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                {book.author}
+              </p>
             </div>
           </div>
         </div>

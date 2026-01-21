@@ -55,7 +55,8 @@ function renderMarkdown(text: string): React.ReactNode {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 dark:text-blue-400 hover:underline"
+          className="hover:underline"
+          style={{ color: "var(--accent-burgundy)" }}
         >
           {linkText}
         </a>
@@ -160,14 +161,20 @@ export function FeedList() {
   if (loading && items.length === 0) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100" />
+        <div
+          className="animate-spin rounded-full h-8 w-8 border-b-2"
+          style={{ borderColor: "var(--accent-gold)" }}
+        />
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <p className="text-center text-gray-500 dark:text-gray-400 py-12">
+      <p
+        className="text-center py-12"
+        style={{ color: "var(--foreground-muted)" }}
+      >
         No notes yet. Start recording some annotations!
       </p>
     );
@@ -178,7 +185,8 @@ export function FeedList() {
       <div className="flex justify-end">
         <button
           onClick={refreshFeed}
-          className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+          className="text-sm flex items-center gap-1 transition-opacity hover:opacity-70"
+          style={{ color: "var(--accent-gold)" }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -190,11 +198,16 @@ export function FeedList() {
       {items.map((item) => (
         <div
           key={item.id}
-          className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-4"
+          className="rounded-lg p-5"
+          style={{
+            background: "var(--card)",
+            border: "1px solid var(--card-border)",
+            boxShadow: "0 2px 8px rgba(44, 24, 16, 0.06)",
+          }}
         >
           {/* Image */}
           {item.imageUrl && (
-            <div className="mb-3">
+            <div className="mb-4">
               <a href={item.imageUrl} target="_blank" rel="noopener noreferrer">
                 <Image
                   src={item.imageUrl}
@@ -202,26 +215,44 @@ export function FeedList() {
                   width={400}
                   height={300}
                   className="rounded-lg max-h-64 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                  style={{ border: "1px solid var(--card-border)" }}
                 />
               </a>
             </div>
           )}
 
           {/* Transcript */}
-          <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+          <p
+            className="whitespace-pre-wrap leading-relaxed"
+            style={{ color: "var(--foreground)" }}
+          >
             {renderMarkdown(item.transcript)}
           </p>
 
           {/* Metadata badges */}
           {(item.pageNumber || item.location) && (
-            <div className="mt-3 flex items-center gap-3 text-xs">
+            <div className="mt-4 flex items-center gap-3 text-xs">
               {item.pageNumber && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded">
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded"
+                  style={{
+                    background: "var(--brown-100)",
+                    color: "var(--brown-600)",
+                    border: "1px solid var(--brown-200)",
+                  }}
+                >
                   Page {item.pageNumber}
                 </span>
               )}
               {item.location && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 rounded">
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded"
+                  style={{
+                    background: "var(--brown-100)",
+                    color: "var(--brown-600)",
+                    border: "1px solid var(--brown-200)",
+                  }}
+                >
                   Location {item.location}
                 </span>
               )}
@@ -229,14 +260,21 @@ export function FeedList() {
           )}
 
           {/* Footer */}
-          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+          <div
+            className="mt-4 pt-4 border-t flex items-center justify-between"
+            style={{ borderColor: "var(--card-border)" }}
+          >
             <Link
               href={`/book/${item.bookId}?highlight=${item.id}`}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-sm transition-opacity hover:opacity-70"
+              style={{ color: "var(--accent-gold)" }}
             >
               {item.bookTitle}
             </Link>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span
+              className="text-xs"
+              style={{ color: "var(--foreground-muted)" }}
+            >
               {new Date(item.createdAt).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -247,7 +285,7 @@ export function FeedList() {
 
           {/* Audio player */}
           {item.audioUrl && (
-            <div className="mt-3">
+            <div className="mt-4">
               <audio
                 src={item.audioUrl}
                 controls
@@ -263,11 +301,17 @@ export function FeedList() {
       <div ref={loadMoreRef} className="py-4">
         {loadingMore && (
           <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-gray-100" />
+            <div
+              className="animate-spin rounded-full h-6 w-6 border-b-2"
+              style={{ borderColor: "var(--accent-gold)" }}
+            />
           </div>
         )}
         {!hasMore && items.length > 0 && (
-          <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
+          <p
+            className="text-center text-sm"
+            style={{ color: "var(--foreground-muted)" }}
+          >
             You've reached the end
           </p>
         )}

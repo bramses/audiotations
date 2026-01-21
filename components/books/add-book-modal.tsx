@@ -39,17 +39,33 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0"
+        style={{ background: "rgba(26, 15, 8, 0.6)" }}
         onClick={onClose}
         aria-hidden
       />
-      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-md p-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Add Book</h2>
+      <div
+        className="relative rounded-lg shadow-xl w-full max-w-md p-6"
+        style={{
+          background: "var(--card)",
+          border: "1px solid var(--card-border)",
+        }}
+      >
+        <h2
+          className="text-xl font-semibold mb-4"
+          style={{
+            color: "var(--foreground)",
+            fontFamily: "var(--font-playfair), Georgia, serif",
+          }}
+        >
+          Add Book
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
               htmlFor="title"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium mb-1"
+              style={{ color: "var(--foreground-muted)" }}
             >
               Title
             </label>
@@ -58,7 +74,12 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 rounded-lg"
+              style={{
+                background: "var(--background)",
+                border: "1px solid var(--card-border)",
+                color: "var(--foreground)",
+              }}
               placeholder="Enter book title"
               required
             />
@@ -66,7 +87,8 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
           <div>
             <label
               htmlFor="author"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium mb-1"
+              style={{ color: "var(--foreground-muted)" }}
             >
               Author
             </label>
@@ -75,7 +97,12 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
               id="author"
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 rounded-lg"
+              style={{
+                background: "var(--background)",
+                border: "1px solid var(--card-border)",
+                color: "var(--foreground)",
+              }}
               placeholder="Enter author name"
               required
             />
@@ -83,7 +110,8 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
           <div>
             <label
               htmlFor="coverUrl"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium mb-1"
+              style={{ color: "var(--foreground-muted)" }}
             >
               Cover URL (optional)
             </label>
@@ -92,7 +120,12 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
               id="coverUrl"
               value={coverUrl}
               onChange={(e) => setCoverUrl(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 rounded-lg"
+              style={{
+                background: "var(--background)",
+                border: "1px solid var(--card-border)",
+                color: "var(--foreground)",
+              }}
               placeholder="https://..."
             />
           </div>
@@ -100,14 +133,22 @@ export function AddBookModal({ isOpen, onClose, onAdd }: AddBookModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="flex-1 px-4 py-2 rounded-lg transition-opacity hover:opacity-90"
+              style={{
+                border: "1px solid var(--card-border)",
+                color: "var(--foreground-muted)",
+              }}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !title.trim() || !author.trim()}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 rounded-lg transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: "var(--accent-gold)",
+                color: "var(--card)",
+              }}
             >
               {loading ? "Adding..." : "Add Book"}
             </button>

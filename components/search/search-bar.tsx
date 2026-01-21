@@ -81,13 +81,19 @@ export function SearchBar() {
           onKeyDown={handleKeyDown}
           onFocus={() => results.length > 0 && setIsOpen(true)}
           placeholder="Search your notes... (Enter for semantic search)"
-          className="w-full px-4 py-3 pl-10 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+          className="w-full px-4 py-3 pl-10 rounded-lg"
+          style={{
+            background: "var(--card)",
+            border: "1px solid var(--card-border)",
+            color: "var(--foreground)",
+          }}
         />
         <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          style={{ color: "var(--foreground-muted)" }}
         >
           <path
             strokeLinecap="round"
@@ -98,25 +104,47 @@ export function SearchBar() {
         </svg>
         {loading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600" />
+            <div
+              className="animate-spin rounded-full h-5 w-5 border-b-2"
+              style={{ borderColor: "var(--accent-gold)" }}
+            />
           </div>
         )}
       </div>
 
       {/* Results dropdown */}
       {isOpen && results.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 max-h-96 overflow-y-auto z-50">
+        <div
+          className="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50"
+          style={{
+            background: "var(--card)",
+            border: "1px solid var(--card-border)",
+          }}
+        >
           {results.map((result) => (
             <Link
               key={result.id}
               href={`/book/${result.bookId}?highlight=${result.id}`}
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-b-0"
+              className="block px-4 py-3 border-b last:border-b-0 transition-colors"
+              style={{ borderColor: "var(--card-border)" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--background-secondary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+              }}
             >
-              <p className="text-sm text-gray-900 dark:text-gray-100 line-clamp-2">
+              <p
+                className="text-sm line-clamp-2"
+                style={{ color: "var(--foreground)" }}
+              >
                 {result.transcript}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p
+                className="text-xs mt-1"
+                style={{ color: "var(--foreground-muted)" }}
+              >
                 {result.bookTitle} by {result.bookAuthor}
               </p>
             </Link>

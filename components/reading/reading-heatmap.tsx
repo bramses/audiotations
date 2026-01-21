@@ -8,12 +8,12 @@ type HeatmapData = {
   year: number;
 };
 
-function getColorClass(count: number): string {
-  if (count === 0) return "bg-gray-100 dark:bg-gray-800";
-  if (count === 1) return "bg-green-200 dark:bg-green-900";
-  if (count === 2) return "bg-green-400 dark:bg-green-700";
-  if (count >= 3) return "bg-green-600 dark:bg-green-500";
-  return "bg-gray-100 dark:bg-gray-800";
+function getColorStyle(count: number): React.CSSProperties {
+  if (count === 0) return { background: "var(--brown-200)" };
+  if (count === 1) return { background: "#D4A574" }; // Light amber
+  if (count === 2) return { background: "#B8860B" }; // Gold
+  if (count >= 3) return { background: "#8B6914" }; // Dark gold
+  return { background: "var(--brown-200)" };
 }
 
 function generateYearDates(year: number): { date: Date; dateStr: string }[] {
@@ -67,7 +67,6 @@ function getMonthLabels(
   let lastMonth = -1;
 
   weeks.forEach((week, index) => {
-    // Find first day that's in a new month
     for (const day of week) {
       const month = day.date.getMonth();
       if (month !== lastMonth) {
@@ -108,8 +107,17 @@ export function ReadingHeatmap() {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
-        <div className="animate-pulse h-32 bg-gray-100 dark:bg-gray-800 rounded" />
+      <div
+        className="rounded-lg p-4"
+        style={{
+          background: "var(--card)",
+          border: "1px solid var(--card-border)",
+        }}
+      >
+        <div
+          className="animate-pulse h-32 rounded"
+          style={{ background: "var(--brown-200)" }}
+        />
       </div>
     );
   }
@@ -117,9 +125,18 @@ export function ReadingHeatmap() {
   const counts = data?.counts || {};
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
+    <div
+      className="rounded-lg p-4"
+      style={{
+        background: "var(--card)",
+        border: "1px solid var(--card-border)",
+      }}
+    >
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <h2
+          className="text-sm font-medium"
+          style={{ color: "var(--foreground-muted)" }}
+        >
           {data?.total || 0} annotations in {year}
         </h2>
       </div>
@@ -128,7 +145,10 @@ export function ReadingHeatmap() {
       <div className="overflow-x-auto">
         <div className="inline-block min-w-fit">
           {/* Month labels */}
-          <div className="flex text-xs text-gray-500 dark:text-gray-400 mb-1 ml-8 relative h-4">
+          <div
+            className="flex text-xs mb-1 ml-8 relative h-4"
+            style={{ color: "var(--foreground-muted)" }}
+          >
             {monthLabels.map((label, i) => (
               <span
                 key={i}
@@ -142,7 +162,10 @@ export function ReadingHeatmap() {
 
           <div className="flex">
             {/* Day labels */}
-            <div className="flex flex-col text-xs text-gray-500 dark:text-gray-400 mr-2 gap-[3px]">
+            <div
+              className="flex flex-col text-xs mr-2 gap-[3px]"
+              style={{ color: "var(--foreground-muted)" }}
+            >
               <span className="h-[10px] leading-[10px]">Sun</span>
               <span className="h-[10px] leading-[10px]">Mon</span>
               <span className="h-[10px]"></span>
@@ -163,7 +186,8 @@ export function ReadingHeatmap() {
                       .map((_, i) => (
                         <div
                           key={`pad-start-${i}`}
-                          className="w-[10px] h-[10px] rounded-sm bg-transparent"
+                          className="w-[10px] h-[10px] rounded-sm"
+                          style={{ background: "transparent" }}
                         />
                       ))}
                   {week.map((day) => {
@@ -172,9 +196,11 @@ export function ReadingHeatmap() {
                     return (
                       <div
                         key={day.dateStr}
-                        className={`w-[10px] h-[10px] rounded-sm ${getColorClass(count)} ${
-                          isToday ? "ring-1 ring-blue-500" : ""
-                        }`}
+                        className="w-[10px] h-[10px] rounded-sm"
+                        style={{
+                          ...getColorStyle(count),
+                          boxShadow: isToday ? "0 0 0 1px var(--accent-gold)" : undefined,
+                        }}
                         title={`${day.date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}: ${count} annotation${count !== 1 ? "s" : ""}`}
                       />
                     );
@@ -186,7 +212,8 @@ export function ReadingHeatmap() {
                       .map((_, i) => (
                         <div
                           key={`pad-end-${i}`}
-                          className="w-[10px] h-[10px] rounded-sm bg-transparent"
+                          className="w-[10px] h-[10px] rounded-sm"
+                          style={{ background: "transparent" }}
                         />
                       ))}
                 </div>
@@ -195,12 +222,15 @@ export function ReadingHeatmap() {
           </div>
 
           {/* Legend */}
-          <div className="flex items-center justify-end gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
+          <div
+            className="flex items-center justify-end gap-1 mt-2 text-xs"
+            style={{ color: "var(--foreground-muted)" }}
+          >
             <span>Less</span>
-            <div className="w-[10px] h-[10px] rounded-sm bg-gray-100 dark:bg-gray-800" />
-            <div className="w-[10px] h-[10px] rounded-sm bg-green-200 dark:bg-green-900" />
-            <div className="w-[10px] h-[10px] rounded-sm bg-green-400 dark:bg-green-700" />
-            <div className="w-[10px] h-[10px] rounded-sm bg-green-600 dark:bg-green-500" />
+            <div className="w-[10px] h-[10px] rounded-sm" style={{ background: "var(--brown-200)" }} />
+            <div className="w-[10px] h-[10px] rounded-sm" style={{ background: "#D4A574" }} />
+            <div className="w-[10px] h-[10px] rounded-sm" style={{ background: "#B8860B" }} />
+            <div className="w-[10px] h-[10px] rounded-sm" style={{ background: "#8B6914" }} />
             <span>More</span>
           </div>
         </div>

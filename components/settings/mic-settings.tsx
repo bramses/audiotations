@@ -71,18 +71,32 @@ export function MicSettings({ isOpen, onClose }: MicSettingsProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0"
+        style={{ background: "rgba(26, 15, 8, 0.6)" }}
         onClick={onClose}
         aria-hidden
       />
-      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-md p-6">
+      <div
+        className="relative rounded-lg shadow-xl w-full max-w-md p-6"
+        style={{
+          background: "var(--card)",
+          border: "1px solid var(--card-border)",
+        }}
+      >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h2
+            className="text-xl font-semibold"
+            style={{
+              color: "var(--foreground)",
+              fontFamily: "var(--font-playfair), Georgia, serif",
+            }}
+          >
             Settings
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            className="transition-opacity hover:opacity-70"
+            style={{ color: "var(--foreground-muted)" }}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -92,29 +106,39 @@ export function MicSettings({ isOpen, onClose }: MicSettingsProps) {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: "var(--foreground-muted)" }}
+            >
               Microphone Input
             </label>
 
             {loading ? (
-              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" />
+              <div className="flex items-center gap-2" style={{ color: "var(--foreground-muted)" }}>
+                <div
+                  className="animate-spin rounded-full h-4 w-4 border-b-2"
+                  style={{ borderColor: "var(--accent-gold)" }}
+                />
                 Loading devices...
               </div>
             ) : error ? (
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+              <p className="text-sm" style={{ color: "var(--accent-burgundy)" }}>{error}</p>
             ) : devices.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400">No microphones found</p>
+              <p className="text-sm" style={{ color: "var(--foreground-muted)" }}>No microphones found</p>
             ) : (
               <div className="space-y-2">
                 {devices.map((device) => (
                   <label
                     key={device.deviceId}
-                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                      selectedDeviceId === device.deviceId
-                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
-                        : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-                    }`}
+                    className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors"
+                    style={{
+                      border: selectedDeviceId === device.deviceId
+                        ? "1px solid var(--accent-gold)"
+                        : "1px solid var(--card-border)",
+                      background: selectedDeviceId === device.deviceId
+                        ? "var(--brown-100)"
+                        : "transparent",
+                    }}
                   >
                     <input
                       type="radio"
@@ -122,18 +146,26 @@ export function MicSettings({ isOpen, onClose }: MicSettingsProps) {
                       value={device.deviceId}
                       checked={selectedDeviceId === device.deviceId}
                       onChange={() => handleSelect(device.deviceId)}
-                      className="text-blue-600"
+                      style={{ accentColor: "var(--accent-gold)" }}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      <p
+                        className="text-sm font-medium truncate"
+                        style={{ color: "var(--foreground)" }}
+                      >
                         {device.label || `Microphone ${device.deviceId.slice(0, 8)}`}
                       </p>
                       {device.deviceId === "default" && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400">System default</p>
+                        <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>System default</p>
                       )}
                     </div>
                     {selectedDeviceId === device.deviceId && (
-                      <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        style={{ color: "var(--accent-gold)" }}
+                      >
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                     )}
@@ -144,8 +176,14 @@ export function MicSettings({ isOpen, onClose }: MicSettingsProps) {
           </div>
 
           {/* Search Threshold */}
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div
+            className="pt-4 border-t"
+            style={{ borderColor: "var(--card-border)" }}
+          >
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: "var(--foreground-muted)" }}
+            >
               Semantic Search Threshold
             </label>
             <div className="space-y-2">
@@ -156,14 +194,18 @@ export function MicSettings({ isOpen, onClose }: MicSettingsProps) {
                 step="0.05"
                 value={threshold}
                 onChange={(e) => handleThresholdChange(parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                style={{ background: "var(--brown-200)" }}
               />
-              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+              <div
+                className="flex justify-between text-xs"
+                style={{ color: "var(--foreground-muted)" }}
+              >
                 <span>Strict (0.1)</span>
-                <span className="font-medium text-gray-900 dark:text-white">{threshold.toFixed(2)}</span>
+                <span className="font-medium" style={{ color: "var(--foreground)" }}>{threshold.toFixed(2)}</span>
                 <span>Loose (1.0)</span>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>
                 Lower values return more relevant results. Higher values return more results but may be less accurate.
               </p>
             </div>

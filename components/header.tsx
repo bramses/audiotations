@@ -6,24 +6,46 @@ export async function Header() {
   const session = await auth();
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+    <header
+      className="border-b"
+      style={{
+        background: "var(--card)",
+        borderColor: "var(--card-border)",
+      }}
+    >
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
+        <div className="flex items-center gap-8">
+          <Link
+            href="/"
+            className="text-2xl tracking-wide hover:opacity-80 transition-opacity"
+            style={{
+              fontFamily: "var(--font-playfair), Georgia, serif",
+              color: "var(--foreground)",
+              fontWeight: 600,
+            }}
+          >
             Audiotations
           </Link>
           {session?.user && (
-            <Link
-              href="/feed"
-              className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-            >
-              Random Notes
-            </Link>
+            <nav className="flex items-center gap-6">
+              <Link
+                href="/feed"
+                className="text-sm hover:opacity-70 transition-opacity"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Random Notes
+              </Link>
+            </nav>
           )}
         </div>
         {session?.user && (
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">{session.user.email}</span>
+            <span
+              className="text-sm hidden sm:inline"
+              style={{ color: "var(--foreground-muted)" }}
+            >
+              {session.user.email}
+            </span>
             <SettingsButton />
             <form
               action={async () => {
@@ -33,7 +55,8 @@ export async function Header() {
             >
               <button
                 type="submit"
-                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="text-sm hover:opacity-70 transition-opacity"
+                style={{ color: "var(--foreground-muted)" }}
               >
                 Sign out
               </button>

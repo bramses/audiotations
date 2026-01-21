@@ -2,11 +2,25 @@ import { signIn } from "@/lib/auth";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ background: "var(--background)" }}
+    >
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Audiotations</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <h1
+            className="text-3xl font-bold"
+            style={{
+              color: "var(--foreground)",
+              fontFamily: "var(--font-playfair), Georgia, serif",
+            }}
+          >
+            Audiotations
+          </h1>
+          <p
+            className="mt-2"
+            style={{ color: "var(--foreground-muted)" }}
+          >
             Record audio notes for the books you read
           </p>
         </div>
@@ -18,7 +32,12 @@ export default function LoginPage() {
         >
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg shadow-sm transition-opacity hover:opacity-90"
+            style={{
+              background: "var(--card)",
+              border: "1px solid var(--card-border)",
+              color: "var(--foreground)",
+            }}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path

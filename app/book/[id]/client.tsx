@@ -17,8 +17,20 @@ export function BookPageClient({ bookId }: BookPageClientProps) {
 
   return (
     <div className="space-y-8">
-      <section className="bg-gray-100 dark:bg-gray-800 rounded-xl p-8">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white text-center mb-6">
+      <section
+        className="rounded-xl p-8"
+        style={{
+          background: "var(--card)",
+          border: "1px solid var(--card-border)",
+        }}
+      >
+        <h2
+          className="text-lg font-semibold text-center mb-6"
+          style={{
+            color: "var(--foreground)",
+            fontFamily: "var(--font-playfair), Georgia, serif",
+          }}
+        >
           Record a Note
         </h2>
         <AudioRecorder
@@ -28,10 +40,21 @@ export function BookPageClient({ bookId }: BookPageClientProps) {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your Notes</h2>
+        <h2
+          className="text-lg font-semibold mb-4"
+          style={{
+            color: "var(--foreground)",
+            fontFamily: "var(--font-playfair), Georgia, serif",
+          }}
+        >
+          Your Notes
+        </h2>
         <Suspense fallback={
           <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-gray-100" />
+            <div
+              className="animate-spin rounded-full h-6 w-6 border-b-2"
+              style={{ borderColor: "var(--accent-gold)" }}
+            />
           </div>
         }>
           <AnnotationList bookId={bookId} refreshTrigger={refreshTrigger} />
