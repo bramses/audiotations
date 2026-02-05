@@ -20,6 +20,12 @@ type AnnotationCardProps = {
   isHighlighted?: boolean;
 };
 
+type Footnote = {
+  quote: string;
+  issue: string;
+  searchQuery: string;
+};
+
 const SPEEDS = [1, 1.5, 2, 3] as const;
 
 // Simple markdown renderer for links and italics
@@ -87,6 +93,9 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
   const [isEditing, setIsEditing] = useState(false);
   const [editedTranscript, setEditedTranscript] = useState(annotation.transcript);
   const [isSaving, setIsSaving] = useState(false);
+  const [footnotes, setFootnotes] = useState<Footnote[] | null>(null);
+  const [isGeneratingFootnotes, setIsGeneratingFootnotes] = useState(false);
+  const [footnoteError, setFootnoteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isHighlighted && cardRef.current) {
@@ -165,6 +174,31 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
     setEditedTranscript(annotation.transcript);
     setIsEditing(false);
   };
+
+  const handleGenerateFootnotes = useCallback(async () => {
+    setIsGeneratingFootnotes(true);
+    setFootnoteError(null);
+    try {
+      const res = await fetch(`/api/annotations/${annotation.id}/footnotes`, {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to generate footnotes");
+      }
+
+      const data = await res.json();
+      setFootnotes(Array.isArray(data.footnotes) ? data.footnotes : []);
+    } catch (error) {
+      console.error("Footnote generation failed:", error);
+      setFootnoteError(
+        error instanceof Error ? error.message : "Failed to generate footnotes"
+      );
+    } finally {
+      setIsGeneratingFootnotes(false);
+    }
+  }, [annotation.id]);
 
   return (
     <>
@@ -247,6 +281,77 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
             {renderMarkdown(annotation.transcript)}
           </p>
         )}
+
+        <div
+          className="mt-4 rounded-lg p-4"
+          style={{
+            background: "var(--background)",
+            border: "1px solid var(--card-border)",
+          }}
+        >
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <h3
+              className="text-sm font-semibold"
+              style={{
+                color: "var(--foreground)",
+                fontFamily: "var(--font-playfair), Georgia, serif",
+              }}
+            >
+              AI Footnotes
+            </h3>
+            <button
+              onClick={handleGenerateFootnotes}
+              disabled={isGeneratingFootnotes}
+              className="px-3 py-1.5 text-sm rounded transition-opacity hover:opacity-90 disabled:opacity-50"
+              style={{
+                background: "var(--accent-gold)",
+                color: "var(--card)",
+              }}
+            >
+              {isGeneratingFootnotes ? "Generating..." : "Add AI Footnotes"}
+            </button>
+          </div>
+
+          {footnoteError && (
+            <p className="text-xs mt-2" style={{ color: "var(--accent-burgundy)" }}>
+              {footnoteError}
+            </p>
+          )}
+
+          {footnotes && (
+            <div className="mt-3">
+              {footnotes.length === 0 ? (
+                <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>
+                  No possible inaccuracies found.
+                </p>
+              ) : (
+                <ol className="list-decimal ml-4 space-y-2 text-sm">
+                  {footnotes.map((footnote, index) => {
+                    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(
+                      footnote.searchQuery
+                    )}`;
+                    return (
+                      <li key={`${footnote.quote}-${index}`}>
+                        <p style={{ color: "var(--foreground)" }}>
+                          <em>&ldquo;{footnote.quote}&rdquo;</em> — {footnote.issue}{" "}
+                          <a
+                            href={searchUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                            style={{ color: "var(--accent-burgundy)" }}
+                          >
+                            Google it
+                          </a>
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Metadata badges */}
         {(annotation.pageNumber || annotation.location) && (
