@@ -186,8 +186,13 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
     setIsGeneratingFootnotes(true);
     setFootnoteError(null);
     try {
+      const shouldForceSubjects = Array.isArray(footnotes) && footnotes.length === 0;
       const res = await fetch(`/api/annotations/${annotation.id}/footnotes`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: shouldForceSubjects ? "subjects" : "default",
+        }),
       });
 
       if (!res.ok) {

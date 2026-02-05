@@ -10,7 +10,7 @@ type Footnote = {
 };
 
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
@@ -28,7 +28,22 @@ export async function POST(
     return NextResponse.json({ error: "Annotation not found" }, { status: 404 });
   }
 
+  let mode: "default" | "subjects" = "default";
   try {
+    const body = await req.json();
+    if (body?.mode === "subjects") {
+      mode = "subjects";
+    }
+  } catch {
+    // ignore missing/invalid body
+  }
+
+  try {
+    const instruction =
+      mode === "subjects"
+        ? `Create footnotes for subjects/entities (people, places, organizations, works, products, events) mentioned in the transcript, even if no inaccuracies are detected. Each footnote should provide a short context note and a Google search query to learn more.`
+        : `Prioritize subjects and entities from the transcript (people, places, organizations, works, products, events) and any claims, numbers, or dates that might be inaccurate or misheard.`;
+
     const response = await openai.chat.completions.create({
       model: CLEANUP_MODEL,
       temperature: 0.2,
@@ -36,8 +51,8 @@ export async function POST(
         {
           role: "system",
           content: `You generate concise fact-check footnotes for an audio transcription.
-Prioritize subjects and entities from the transcript (people, places, organizations, works, products, events) and any claims, numbers, or dates that might be inaccurate or misheard.
-Return up to 5 possible issues. If none, return an empty list.
+${instruction}
+Return up to 5 footnotes. If none, return an empty list.
 
 Return JSON in this exact format:
 {
