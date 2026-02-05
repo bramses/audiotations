@@ -28,6 +28,10 @@
   --brown-700: #4A3728;
   --brown-800: #2C1810;
   --brown-900: #1A0F08;
+
+  /* Font fallbacks (local to avoid network downloads) */
+  --font-playfair: "Playfair Display", "Times New Roman", Georgia, serif;
+  --font-lora: "Lora", "Times New Roman", Georgia, serif;
 }
 
 @media (prefers-color-scheme: dark) {

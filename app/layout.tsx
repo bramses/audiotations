@@ -1,18 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Lora } from "next/font/google";
 import "./globals.css";
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const lora = Lora({
-  variable: "--font-lora",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Audiotations",
@@ -27,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${playfair.variable} ${lora.variable} antialiased min-h-screen`}
+        className="antialiased min-h-screen"
         style={{ background: "var(--background)", color: "var(--foreground)" }}
       >
         {children}
