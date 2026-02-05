@@ -70,6 +70,11 @@ Return JSON in this exact format:
           .slice(0, 5)
       : [];
 
+    await prisma.annotation.update({
+      where: { id: annotation.id },
+      data: { footnotes },
+    });
+
     return NextResponse.json({ footnotes });
   } catch (error) {
     console.error("Footnote generation error:", error);

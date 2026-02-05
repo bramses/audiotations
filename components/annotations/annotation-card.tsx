@@ -10,6 +10,7 @@ type Annotation = {
   imageUrl: string | null;
   pageNumber: string | null;
   location: string | null;
+  footnotes?: Footnote[] | null;
   createdAt: string;
 };
 
@@ -93,7 +94,9 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
   const [isEditing, setIsEditing] = useState(false);
   const [editedTranscript, setEditedTranscript] = useState(annotation.transcript);
   const [isSaving, setIsSaving] = useState(false);
-  const [footnotes, setFootnotes] = useState<Footnote[] | null>(null);
+  const [footnotes, setFootnotes] = useState<Footnote[] | null>(
+    annotation.footnotes ?? null
+  );
   const [isGeneratingFootnotes, setIsGeneratingFootnotes] = useState(false);
   const [footnoteError, setFootnoteError] = useState<string | null>(null);
 
@@ -105,6 +108,10 @@ export function AnnotationCard({ annotation, onDelete, onUpdate, isHighlighted }
       return () => clearTimeout(timer);
     }
   }, [isHighlighted]);
+
+  useEffect(() => {
+    setFootnotes(annotation.footnotes ?? null);
+  }, [annotation.footnotes]);
 
   useEffect(() => {
     if (isEditing && textareaRef.current) {

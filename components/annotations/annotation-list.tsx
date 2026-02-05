@@ -11,6 +11,7 @@ type Annotation = {
   imageUrl: string | null;
   pageNumber: string | null;
   location: string | null;
+  footnotes?: { quote: string; issue: string; searchQuery: string }[] | null;
   createdAt: string;
 };
 

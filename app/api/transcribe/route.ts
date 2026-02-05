@@ -131,7 +131,7 @@ Return JSON in this exact format:
 
     // 5. Store annotation with embedding using raw SQL for vector type
     const annotation = await prisma.$queryRaw<{ id: string }[]>`
-      INSERT INTO "Annotation" (id, transcript, embedding, "audioUrl", "pageNumber", location, "bookId", "createdAt")
+      INSERT INTO "Annotation" (id, transcript, embedding, "audioUrl", "pageNumber", location, footnotes, "bookId", "createdAt")
       VALUES (
         ${crypto.randomUUID()},
         ${cleanedTranscript},
@@ -139,6 +139,7 @@ Return JSON in this exact format:
         ${publicUrl},
         ${pageNumber},
         ${location},
+        ${null},
         ${bookId},
         NOW()
       )

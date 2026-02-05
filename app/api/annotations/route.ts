@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     const embeddingStr = embedding ? `[${embedding.join(",")}]` : null;
 
     const annotation = await prisma.$queryRaw<{ id: string; createdAt: Date }[]>`
-      INSERT INTO "Annotation" (id, transcript, embedding, "audioUrl", "imageUrl", "pageNumber", location, "bookId", "createdAt")
+      INSERT INTO "Annotation" (id, transcript, embedding, "audioUrl", "imageUrl", "pageNumber", location, footnotes, "bookId", "createdAt")
       VALUES (
         ${crypto.randomUUID()},
         ${transcript.trim()},
@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
         ${null},
         ${pageNumber},
         ${location},
+        ${null},
         ${bookId},
         NOW()
       )

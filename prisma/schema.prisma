@@ -87,6 +87,7 @@ model Annotation {
   imageUrl   String?
   pageNumber String?
   location   String?
+  footnotes  Json?
   bookId     String
   book       Book                        @relation(fields: [bookId], references: [id], onDelete: Cascade)
   createdAt  DateTime                    @default(now())
@@ -94,4 +95,3 @@ model Annotation {
   @@index([bookId])
   @@schema("public")
 }
-
