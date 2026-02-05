@@ -36,7 +36,7 @@ export async function POST(
         {
           role: "system",
           content: `You generate concise fact-check footnotes for an audio transcription.
-Identify claims, numbers, dates, names, or phrases that might be inaccurate or misheard.
+Prioritize subjects and entities from the transcript (people, places, organizations, works, products, events) and any claims, numbers, or dates that might be inaccurate or misheard.
 Return up to 5 possible issues. If none, return an empty list.
 
 Return JSON in this exact format:
